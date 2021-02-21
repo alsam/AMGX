@@ -33,6 +33,7 @@ ENDIF (WIN32)
 # the project
 project (AMG)
 
+set(CMAKE_CXX_STANDARD 14)
 
 #disable in-place builds
 if(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
@@ -180,10 +181,10 @@ endif()
 
 #Configuration specific nvcc flags
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CUDA_NVCC_FLAGS_DEBUG "-g;-G;-std=c++11;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Debug compiler flags")
-  set(CUDA_NVCC_FLAGS_RELEASE "-O3;-DNDEBUG;-std=c++11;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Release compiler flags")
-  set(CUDA_NVCC_FLAGS_PROFILE "-O3;-DPROFILE;-std=c++11;${NVTXRANGE_FLAG}" CACHE STRING "Profile compiler flags")
-  set(CUDA_NVCC_FLAGS_RELWITHTRACES "-O3;-DNDEBUG;-DAMGX_USE_CPU_PROFILER;-std=c++11;${NVTXRANGE_FLAG}" CACHE STRING "RelWithTraces compiler flags")
+  set(CUDA_NVCC_FLAGS_DEBUG "-g;-G;-std=c++14;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Debug compiler flags")
+  set(CUDA_NVCC_FLAGS_RELEASE "-O3;-DNDEBUG;-std=c++14;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Release compiler flags")
+  set(CUDA_NVCC_FLAGS_PROFILE "-O3;-DPROFILE;-std=c++14;${NVTXRANGE_FLAG}" CACHE STRING "Profile compiler flags")
+  set(CUDA_NVCC_FLAGS_RELWITHTRACES "-O3;-DNDEBUG;-DAMGX_USE_CPU_PROFILER;-std=c++14;${NVTXRANGE_FLAG}" CACHE STRING "RelWithTraces compiler flags")
 else()
   set(CUDA_NVCC_FLAGS_DEBUG "-g;-G;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Debug compiler flags")
   set(CUDA_NVCC_FLAGS_RELEASE "-O3;-DNDEBUG;--Werror cross-execution-space-call;${NVTXRANGE_FLAG}" CACHE STRING "Release compiler flags")
