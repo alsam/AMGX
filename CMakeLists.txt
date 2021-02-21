@@ -27,7 +27,7 @@
 IF (WIN32)
 cmake_minimum_required (VERSION 2.8.8)
 ELSE (WIN32)
-cmake_minimum_required (VERSION 2.8.0)
+cmake_minimum_required (VERSION 3.9.1)
 ENDIF (WIN32)
 
 # the project
@@ -63,6 +63,12 @@ IF(WIN32)
   set(CMAKE_CXX_FLAGS_MINSIZEREL     "/D_DEBUG /Zl /Zi /Ob0 /Od /RTC1" CACHE STRING "" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE        "/MT /O2 /Ob2 /DNDEBUG" CACHE STRING "Force flags. /Zl is used to remove deps" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /O2 /Ob2 /DNDEBUG" CACHE STRING "Force flags. /Zl is used to remove deps" FORCE)
+ELSEIF(UNIX AND ${CMAKE_HOST_SYSTEM_NAME}} MATCHES Linux)
+      message("configuring for Linux")
+      set(CMAKE_C_FLAGS                "-pthread" CACHE STRING "" FORCE)
+      set(CMAKE_CXX_FLAGS              "-pthread" CACHE STRING "" FORCE)
+      set(CMAKE_CXX_FLAGS_DEBUG        "-pthread" CACHE STRING "" FORCE)
+      set(CMAKE_CXX_FLAGS_RELEASE      "-pthread" CACHE STRING "" FORCE)
 ENDIF(WIN32)
 
 # disabling specific warnings
