@@ -5,3 +5,7 @@ AMGX/base/src/amgx_cusparse.cu(1078): error: identifier "cusparseDcsrmv" is unde
 ```
 
 + [CUDA 11 support](https://github.com/NVIDIA/AMGX/issues/107)
+    tl;dr    
+    ```sh
+    git checkout v2.1.x
+    ```
