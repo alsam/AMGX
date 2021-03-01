@@ -2,3 +2,6 @@
 
 debug:
 	mkdir -p build_debug && cd build_debug && cmake .. -DCMAKE_BUILD_TYPE=Debug -DCUDA_ARCH="35 52 60" -G Ninja && ninja -j4
+
+tags:
+	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
