@@ -1,0 +1,21 @@
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont[Mapping=tex-ansi]{CMU Typewriter Text}
+\usepackage{longtable,booktabs} 
+\usepackage{ulem}
+\newcommand{\msout}[1]{\text{\sout{\ensuremath{#1}}}}
+
+\definecolor{links}{HTML}{FF7F00}
+%\hypersetup{colorlinks,linkcolor=,urlcolor=links}
+\hypersetup{colorlinks,linkcolor=,urlcolor=blue}
+
+% Slide number in lower right
+\definecolor{gray}{RGB}{155,155,155}
+\setbeamertemplate{footline}{%
+    \raisebox{5pt}{\makebox[0.5\paperwidth]{\hfill\makebox[20pt]{\color{gray}
+          \scriptsize\insertframenumber}}}\hspace*{5pt}}
+
+% Space between paragraphs on notes page
+\addtobeamertemplate{note page}{\setlength{\parskip}{12pt}}{}
+%%\addtobeamertemplate{note page}{\setbeamerfont{itemize/enumerate subbody}{size=\scriptsize}}{}
+%%\addtobeamertemplate{note page}{\setbeamerfont{itemize/enumerate subsubbody}{size=\tiny}}{}
