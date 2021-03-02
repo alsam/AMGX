@@ -300,3 +300,64 @@ Inside `AMGX_solver_solve` contd.
  603│         FatalError("Block sizes do not match", AMGX_ERR_BAD_PARAMETERS);
  604│     }
 ```
+
+Method to compute residual
+==========================
+```c++
+ 192│ // Method to compute residual
+ 193│ template<class TConfig>
+ 194├>void Solver<TConfig>::compute_residual(const VVector &b, VVector &x)
+ 195│ {
+ 196│     AMGX_CPU_PROFILER( "Solver::compute_residual_bx " );
+ 197│     assert(m_A);
+ 198│     assert(m_r); //r and b/x are not the same size
+ 199│     int size, offset;
+ 200│     m_A->getOffsetAndSizeForView(OWNED, &offset, &size);
+ 201│     // r = b - Ax.
+ 202│     m_A->apply(x, *m_r);
+ 203│     axpby(b, *m_r, *m_r, types::util<ValueTypeB>::get_one(), types::util<ValueTypeB>::get_minus_one(), offset, size);
+ 204│ }
+```
+
+**`thrust`** is used for `axpby`
+================================
+```c++
+ 321│ //out=a*x+b*y
+ 322│ template<class Vector, class Scalar>
+ 323├>void axpby(const Vector &x, const Vector &y, Vector &out, Scalar a, Scalar b, int offset, int size)
+ 324│ {
+ 325│     if (size == -1) { size = x.size() / x.get_block_size(); }
+ 326│
+ 327│ #ifndef NDEBUG
+ 328│
+ 329│     if (x.get_block_dimx() == -1) { FatalError("x block dims not set", AMGX_ERR_NOT_IMPLEMENTED); }
+ 330│
+ 331│     if (y.get_block_dimx() == -1) { FatalError("y block dims not set", AMGX_ERR_NOT_IMPLEMENTED); }
+ 332│
+ 333│     if (out.get_block_dimx() == -1) { FatalError("out block dims not set", AMGX_ERR_NOT_IMPLEMENTED); }
+ 334│
+ 335│ #endif
+ 336│     thrust_axpby(x.begin() + offset * x.get_block_size(),
+ 337│                  x.begin() + (offset + size) * x.get_block_size(),
+ 338│                  y.begin() + offset * x.get_block_size(),
+ 339│                  out.begin() + offset * x.get_block_size(),
+ 340│                  a, b);
+ 341│     out.dirtybit = 1;
+ 342│     cudaCheckError();
+ 343│ }
+.../AMGX/base/src/blas.cu
+```
+
+callstack snapshot
+==================
+```c++
+[?2004h[?2004l[?2004h(gdb) where
+[?2004l#0  amgx::axpby<amgx::Vector<amgx::TemplateConfig<(AMGX_MemorySpace)1, (AMGX_VecPrecision)0, (AMGX_MatPrecision)0, (AMGX_IndPrecision)2> >, double> (x=..., y=..., out=..., a=1, b=-1, offset=0, size=12) at .../AMGX/base/src/blas.cu:323
+#1  0x00007fff8430ed15 in amgx::Solver<amgx::TemplateConfig<(AMGX_MemorySpace)1, (AMGX_VecPrecision)0, (AMGX_MatPrecision)0, (AMGX_IndPrecision)2> >::compute_residual (this=0x5555f2bb3ba0, b=..., x=...) at .../AMGX/base/src/solvers/solver.cu:203
+#2  0x00007fff843120a6 in amgx::Solver<amgx::TemplateConfig<(AMGX_MemorySpace)1, (AMGX_VecPrecision)0, (AMGX_MatPrecision)0, (AMGX_IndPrecision)2> >::solve (this=0x5555f2bb3ba0, b=..., x=..., xIsZero=false) at .../AMGX/base/src/solvers/solver.cu:691
+#3  0x00007fff84314523 in amgx::Solver<amgx::TemplateConfig<(AMGX_MemorySpace)1, (AMGX_VecPrecision)0, (AMGX_MatPrecision)0, (AMGX_IndPrecision)2> >::solve_no_throw (this=0x5555f2bb3ba0, b=..., x=..., status=@0x5555fc8934c0: amgx::AMGX_ST_ERROR, xIsZero=false) at .../AMGX/base/src/solvers/solver.cu:992
+#4  0x00007fff82e1d798 in amgx::AMG_Solver<amgx::TemplateConfig<(AMGX_MemorySpace)1, (AMGX_VecPrecision)0, (AMGX_MatPrecision)0, (AMGX_IndPrecision)2> >::solve (this=0x5555f7cc32e0, b=..., x=..., status=@0x5555fc8934c0: amgx::AMGX_ST_ERROR, xIsZero=false) at .../AMGX/base/src/amg_solver.cu:296
+#5  0x00007fff82e93bbe in amgx::(anonymous namespace)::solve_with<(AMGX_Mode)8193, amgx::AMG_Solver, amgx::Vector> (slv=0x5555fc8934a0, rhs=0x555555d02540, sol=0x5555e3b7ff40, resources=0x5555558bd000, xIsZero=false) at .../AMGX/base/src/amgx_c.cu:747
+#6  0x00007fff82e3bb03 in AMGX_solver_solve (slv=0x5555fc8934a0, rhs=0x555555d02540, sol=0x5555e3b7ff40) at .../AMGX/base/src/amgx_c.cu:2799
+#7  0x0000555555557890 in main (argc=5, argv=0x7fffffffd7f8) at .../AMGX/examples/amgx_capi.c:437
+```
