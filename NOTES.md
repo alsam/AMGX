@@ -409,7 +409,7 @@ iteration loop
 ==============
 
 ```c++
-798│     for (m_curr_iter = 0; m_curr_iter < m_max_iters && !done; ++m_curr_iter)
+ 798│     for (m_curr_iter = 0; m_curr_iter < m_max_iters && !done; ++m_curr_iter)
  799│     {
  800│         // Run one iteration. Compute residual and its norm and decide convergence
  801│         bool has_converged = solve_iteration(b, x, xIsZero);
