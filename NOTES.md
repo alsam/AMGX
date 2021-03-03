@@ -361,3 +361,62 @@ callstack snapshot
 #6  0x00007fff82e3bb03 in AMGX_solver_solve (slv=0x5555fc8934a0, rhs=0x555555d02540, sol=0x5555e3b7ff40) at .../AMGX/base/src/amgx_c.cu:2799
 #7  0x0000555555557890 in main (argc=5, argv=0x7fffffffd7f8) at .../AMGX/examples/amgx_capi.c:437
 ```
+
+`solve_init`
+===========
+
+```c++
+790│     if (!done)
+ 791│     {
+ 792├───────> solve_init(b, x, xIsZero);
+ 793│     }
+ 794│
+ 795│     // Run the iterations
+ 796│     std::stringstream ss;
+ 797│
+ 798│     for (m_curr_iter = 0; m_curr_iter < m_max_iters && !done; ++m_curr_iter)
+ 799│     {
+ 800│         // Run one iteration. Compute residual and its norm and decide convergence
+ 801│         bool has_converged = solve_iteration(b, x, xIsZero);
+ 802│         // Make sure x is not zero anymore.
+.../AMGX/base/src/solvers/solver.cu
+```
+
+inside `solve_init`
+===================
+
+```c++
+71│ template<class T_Config>
+372│ void
+373│ FGMRES_Solver<T_Config>::solve_init( VVector &b, VVector &x, bool xIsZero )
+374│ {
+375│     //init residual, even if we don't plan to use it, we might need it, so make sure we have enough memory to store it now
+376├───> residual.resize( b.size() );
+377│     residual.set_block_dimx( 1 );
+378│     residual.set_block_dimy( this->m_A->get_block_dimy() );
+379│     residual.dirtybit = 1;
+380│     residual.delayed_send = 1;
+381│ }
+382│
+383│ //check for convergence
+384│ //al the complicated stuff happens here
+385│ template <class TConfig>
+386│ bool FGMRES_Solver<TConfig>::checkConvergenceGMRES(bool check_V_0)
+.../AMGX/core/src/solvers/fgmres_solver.cu
+```
+
+iteration loop
+==============
+
+```c++
+798│     for (m_curr_iter = 0; m_curr_iter < m_max_iters && !done; ++m_curr_iter)
+ 799│     {
+ 800│         // Run one iteration. Compute residual and its norm and decide convergence
+ 801│         bool has_converged = solve_iteration(b, x, xIsZero);
+ 802│         // Make sure x is not zero anymore.
+ 803├───────> xIsZero = false;
+ 804│         // Is it done ?
+ 805│         done = m_monitor_convergence && has_converged;
+```
+
+
