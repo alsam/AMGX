@@ -419,4 +419,27 @@ iteration loop
  805│         done = m_monitor_convergence && has_converged;
 ```
 
+`solve_iteration` code
+======================
 
+```c++
+template< class T_Config >
+class AMG_Solve
+{
+...
+static void solve_iteration( AMG_Class *amg, Vector_hd &b, Vector_hd &x)
+{
+    cudaStreamSynchronize(0);
+    nvtxRange amg_si("amg_solve_iteration");
+    MemorySpace memorySpaceTag;
+    AMG_Level<TConfig_hd> *fine = amg->getFinestLevel( memorySpaceTag );
+    assert(fine != NULL);
+    CycleFactory<TConfig>::generate( amg, fine, b, x );
+    fine->unsetInitCycle();
+    // Note: this sometimes takes too much time on host making GPU idle. 
+    // Solve is not that important for memory - main mem usage comes from setup.
+    // Disabling this call for now
+    //MemoryInfo::updateMaxMemoryUsage();
+    cudaStreamSynchronize(0);
+}
+```
