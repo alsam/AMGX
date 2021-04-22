@@ -12,7 +12,7 @@
         "selector": "SIZE_2", 
         "convergence": "RELATIVE_MAX_CORE", 
         "coarsest_sweeps": 2, 
-        "max_iters": 100, 
+        "max_iters": 10000, 
         "monitor_residual": 1, 
         "min_coarse_rows": 2, 
         "relaxation_factor": 0.75, 
